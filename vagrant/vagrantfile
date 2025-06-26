@@ -1,0 +1,25 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "kalilinux/rolling" # Usa a box oficial do Kali Linux
+  config.vm.hostname = "kali"
+
+  # Quanto memória e CPU deseja para a VM
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = "2048"
+    vb.cpus = 2
+  end
+
+  # Encaminhamento de porta para VNC (5901)
+  config.vm.network "forwarded_port", guest: 5901, host: 5901
+
+  # Provisionamento para instalar VNC Server
+  config.vm.provision "shell", inline: <<-SHELL
+    sudo apt-get update
+    sudo apt-get upgrade -y
+    sudo apt-get install -y tightvncserver
+    # Configurar senha VNC
+    echo "senha123\nsenha123\n" | vncpasswd -f > ~/.vnc/passwd
+    chmod 600 ~/.vnc/passwd
+    # Iniciar o VNC server na primeira execução
+    vncserver :1 -geometry 1280x800 -depth 24
+  SHELL
+end
